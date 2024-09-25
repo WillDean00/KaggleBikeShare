@@ -1,0 +1,160 @@
+---
+title: "HW 2: Palmer Island Penguins"
+author: Will Dean
+format: 
+  html: 
+    embed-resources: true
+editor: visual
+---
+
+## Problem 1. Palmer Island Penguins
+
+**Data:**
+
+Measurements for penguin species, island in Palmer Archipelago, size (flipper length, body mass, bill dimensions), and sex.
+
+Data were collected and made available by Dr. Kristen Gorman and the Palmer Station, Antarctica LTER, a member of the Long Term Ecological Research Network.
+
+**Import:**
+
+```{r}
+#| warnings: false
+#| output: false
+library(tidyverse)
+library(palmerpenguins)
+```
+
+**EDA:**
+
+```{r}
+glimpse(penguins)
+```
+
+[***Make a plot showing differences between penguin species and their bills (length and depth).***]{style="color:royalblue;"}
+
+*Hint*: Look at the "Coding Out Loud" lecture for the graphic that answers this question.
+
+*Note*: Replace the `"___"` and uncomment (remove the `#`) to see the effect
+
+```{r}
+library(ggplot2)
+ggplot(penguins,
+       aes(x = bill_depth_mm,
+           y = bill_length_mm,
+           color = species)) +
+  geom_point() +
+  labs(
+    title  = "Bill depth and length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Bill depth (mm)", y = "Bill length (mm)",
+    color = "Species",
+    caption = "Source: Palmer Station LTER / palmerpenguins package"
+    ) +
+    scale_color_viridis_d() 
+```
+
+## Problem 2. Gentoo Penguins
+
+**Data**
+
+Gentoo penguins are one of the species in the Palmer Archipelago. They have white stripes that extend across their heads and bright red-orange bills. Gentoos can "fly" out of the water and land on their feet! You can see them at the Draper Aquarium.
+
+**Wrangling**
+
+```{r}
+gentoo <- penguins |>
+  filter(species == "Gentoo") |>
+  na.omit()
+```
+
+**EDA**
+
+```{r}
+glimpse(gentoo)
+```
+
+[***2(a). Make a graphic about flipper length:***]{style="color:royalblue;"}
+
+*Hint*: Since penguin flipper length is univariate data, to answer this question you will want to try a histogram, density plot, boxplot and your answer will be the one of them that you think best communicates the shape, center, variation, and anything unusual about the distribution.
+
+*Note*: Change `eval` to `true` and replace the `"___"`
+
+```{r}
+#| eval: true
+ggplot(gentoo, aes(x = flipper_length_mm)) +
+  geom_density() +
+  labs(
+    x = "Flipper Length (mm)",
+    y = "Density",
+    title = "Gentoo Penginun Flipper Length"
+)
+```
+
+[***2(b). Reflect:***]{style="color:royalblue;"}
+
+Prompt: What should someone know about the Gentoo penguin flipper length distribution? (shape, center, spread, anything unusual)
+
+From looking at the density plot, can tell that flipper length in Gentoo penguins is slightly skewed right. The mean flipper length is slightly on the shorter side of the density plot as well. Something unusual I noticed on the plot is the small bump of penguins with really long flippers. The distribution of flipper length looks normal besides this portion of penguins with long flippers.
+
+[***2(c). Make a bar plot about the sex of penguins in the dataset:***]{style="color:royalblue;"}
+
+*Note*: Change `eval` to `true` and replace the `"___"`
+
+```{r}
+#| eval: True
+ggplot(gentoo, aes(x = sex)) +
+  geom_bar() 
+```
+
+[***2(d). Reflect:***]{style="color:royalblue;"}
+
+Prompt: What should someone know about the distribution of sex for the Gentoo penguin data?
+
+There are a few more male penguins than female penguins in the Gentoo penguin population.
+
+[***2(e). Make a graphic about difference in flipper length distribution by sex:***]{style="color:royalblue;"}
+
+*Hint*: Since there are two variables, to answer this question you will want an answer that you think best communicates any difference in sex in the shape, center, variation, and anything unusual about the distribution.
+
+*Note*: Change `eval` to `true` and replace the `"___"`
+
+```{r}
+#| eval: true
+ggplot(gentoo, aes(x = flipper_length_mm, fill = sex)) + geom_density(adjust = 1.5,
+               alpha = .5)
+
+```
+
+[***2(f). Reflect:***]{style="color:royalblue;"}
+
+Prompt: What should someone know about the flipper length distribution (shape, center, spread, anything unusual) for male and female Gentoo penguins?
+
+From the overlaid density plots showing the distribution of flipper length for each sex, we can see that males have longer flippers than males. Both distributions are relatively normal as well and males have a wider distribution than females.
+
+**Model:**
+
+Is there a statistically significant difference between female and male flipper length means?
+
+```{r}
+#| eval: true
+t.test(flipper_length_mm ~ sex, data = gentoo,
+       alternative = "two.sided", var.equal = TRUE, conf.level = 0.99)
+```
+
+[***2(g). Reflect:***]{style="color:royalblue;"}
+
+Prompt: What are the conclusions from this inference (confidence interval and hypothesis test)?
+
+The conclusions from this test tell us that we do have significant evidence to reject the null hypothesis that males and females have a significant difference in flipper length averages. The 99% confidence interval is from -11.18 mm to -6.48 mm, meaning the mean flipper length for females is between that range smaller than the mean flipper length for males, on average.
+
+## Stretch Exercise:
+
+**Model:**
+
+Is the Gentoo penguin flipper length distribution approximately normal?
+
+(Insert R code cell and write appropriate code)
+
+*Reflect:*
+
+Prompt: Why is normality important in the model for this analysis?

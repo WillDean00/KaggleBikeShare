@@ -1,0 +1,101 @@
+---
+title: "Top 10 Languages for Stat / DS"
+author: Will Dean 
+format: 
+  html: 
+    embed-resources: true
+editor: visual
+---
+
+## Data
+
+What are the top 10 languages in Statistics / Data Science?
+
+The 2022 Stack Overflow Developer Survey examines all aspects of the developer experience from learning to code to their favorite technologies to version control and the workplace experience of professional developers. The data is shared under the Open Database License.
+
+## Import
+
+In the code chunk below (hidden in the report) we **import** the data from a CSV file.
+
+```{r}
+#| echo: false
+#| include: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+
+# Data: Stack Overflow Survey (2022)
+# https://insights.stackoverflow.com/survey
+
+# downloaded zip file from Stack Overflow,
+# copied survey csv file to grimshawville.byu.edu so it's easier 
+# to input data into R
+survey_big <- read_csv("https://grimshawville.byu.edu/survey_results_public.csv")
+```
+
+## Wrangling
+
+In the code chunk below (hidden in the report) we do some **tidying** and **transforming**
+
+```{r}
+#| echo: false
+
+# reduce the columns to this research question
+# since multiple responses for Language are allowed, 
+# this is a bigger dataset than the "row is a person" dataset
+survey<- survey_big |>
+  transmute(ResponseId,
+    Language = LanguageHaveWorkedWith,
+    Employment
+  ) |>
+  # survey didn't have 'statistics' as job choice, but
+  # this appears to capture the Stat/DS popn
+  filter(str_detect(Language, "R;")) |>
+  mutate(Language = str_split(Language, pattern = ";")) |>
+  unnest(Language) |>
+  filter(!is.na(Language)) |>
+  filter(Employment == "Employed, full-time")
+```
+
+## EDA
+
+In the code chunk we create a **graphic** for the "Top Languages in Stat & DS" (we **transform** to tally the data by languange and reduce to the top 10 before creating the graphic)
+
+```{r}
+survey |>
+  mutate(Language = fct_infreq(Language)) |>
+  count(Language, sort = TRUE) |>
+  slice_head(n = 10) |>
+  ggplot(aes(x = Language, y = n)) +
+    geom_col() +
+    labs(
+      title = "Top Languages for Statistics & Data Science",
+      y = "Tally", x = ""
+    ) +  
+    scale_y_continuous(label = scales::comma)
+```
+
+*Reflect:*
+
+Prompt 1: What languages on the Top 10 for Statistics / Data Science make sense to you (and why)?
+
+The top coding language that makes most sense to me is R. R is extremely useful in statistics and data science and comes with several unique abilities.
+
+Prompt 2: What languages on the Top 10 for Statistics / Data Science don't make sense to you (and why)?
+
+The programming langues that makes the lease sense to be in the top 10 to me is C#. From what I understand C# is used to make apps for phones and such; I don't see a huge application to data science and statistics for this language.
+
+## Stretch Problems
+
+-   If you wanted a "Top 20" list, identify the line in the code and change it appropriately.
+
+-   Create the Top 10 list for people with jobs by:
+
+    -   Adding the line
+
+        `filter(Employment == "Employed, full-time") |>`
+
+        after the `survey |>` line in the EDA section
+
+    -   Changing the `title` line to clarify the population
